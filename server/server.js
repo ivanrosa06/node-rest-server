@@ -10,9 +10,13 @@ app.use(bodyParser.urlencoded({ extended: false }))
 // parse application/json
 app.use(bodyParser.json())
 app.use(require('./routes/usuario'))
+    //lol
 
+mongoose.connect(process.env.URLDB, {
+        useNewUrlParser: true,
+        useUnifiedTopology: true
+    },
 
-mongoose.connect(process.env.URLDB, { userNewUrlParser: true, useCreateIndex: true },
     (err, resp) => {
         if (err) throw err;
         console.log('base de datos ONLINE');
