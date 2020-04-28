@@ -1,21 +1,23 @@
 const express = require('express');
 const bcrypt = require('bcrypt');
 const _ = require('underscore');
-const app = express()
+const app = express();
 const Usuario = require('../models/usuario');
+const { verificaToken, verificaRole } = require('../middlewares/autenticacion')
 
 
-app.get('/usuario', function(req, res) {
-    // let desde = req.query.desde || 0;
-    // desde = number(desde);
-    // let limite = req.query.limite || 0;
-    // limite = number(limite);
-    //El find sin condiciones dice que envie todos los elementos que encuentre
-    //exec dice que ejecute el find y devuelve un error y un array que podremos meter en usuarios
-    //Entre las llaves se puede agregar condiciones de lo que queremos recibir por respuesta
-    //find({ google: true }) //devolvera todos los que se hayan registrados por google
-    // , 'nombre email' nos permite determinar que parametros queremos devolver en el json
-    //Agregamos condicion en el find solo me devuelva usuarios con estado: true
+app.get('/usuario', verificaToken, (req, res) => {
+   
+        // let desde = req.query.desde || 0;
+        // desde = number(desde);
+        // let limite = req.query.limite || 0;
+        // limite = number(limite);
+        //El find sin condiciones dice que envie todos los elementos que encuentre
+        //exec dice que ejecute el find y devuelve un error y un array que podremos meter en usuarios
+        //Entre las llaves se puede agregar condiciones de lo que queremos recibir por respuesta
+        //find({ google: true }) //devolvera todos los que se hayan registrados por google
+        // , 'nombre email' nos permite determinar que parametros queremos devolver en el json
+        //Agregamos condicion en el find solo me devuelva usuarios con estado: true
     Usuario.find({ estado: true }, 'nombre email role estado google')
         //salta los registros
         // .skip(desde)
@@ -37,10 +39,10 @@ app.get('/usuario', function(req, res) {
                 })
             })
 
-        })
-})
+        });
+});
 
-app.post('/usuario', function(req, res) {
+app.post('/usuario', [verificaToken, verificaRole], (req, res) => {
     let body = req.body;
 
     let usuario = new Usuario({
@@ -69,7 +71,7 @@ app.post('/usuario', function(req, res) {
 
 });
 
-app.put('/usuario/:id', function(req, res) {
+app.put('/usuario/:id', [verificaToken, verificaRole], (req, res) => {
     let id = req.params.id;
 
     let body = _.pick(req.body, ['nombre', 'email', 'img', 'role', 'estado']);
@@ -92,7 +94,7 @@ app.put('/usuario/:id', function(req, res) {
     });
 
 });
-app.delete('/usuario/:id', function(req, res) {
+app.delete('/usuario/:id', [verificaToken, verificaRole], function(req, res) {
     let id = req.params.id
 
     let cambiaEstado = {
